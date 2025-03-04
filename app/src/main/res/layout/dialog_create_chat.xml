@@ -1,0 +1,23 @@
+<LinearLayout android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical">
+    <EditText
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:hint="Enter ChatRoomid"
+        android:id="@+id/etChatId"/>
+
+    <EditText
+        android:id="@+id/etChatName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:hint="Enter chatRoom name" />
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/btnConfirmCreate"
+
+        android:text="Create"/>
+</LinearLayout>

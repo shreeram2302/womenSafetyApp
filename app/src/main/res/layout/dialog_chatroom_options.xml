@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <Button
+        android:id="@+id/btnCreateChat"
+        android:text="Create Emergency Chat"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"/>
+    <Button
+        android:id="@+id/btnJoinChat"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:text="Join Emergency Chat Chat" />
+</LinearLayout>

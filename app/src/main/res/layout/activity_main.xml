@@ -1,0 +1,46 @@
+<!-- res/layout/activity_main.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shake 3 times to send emergency SMS"
+        android:textSize="18sp"
+        android:textColor="#000"
+        android:gravity="center"/>
+    <Button
+        android:id="@+id/btnStartRecording"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Emergency Recording"
+        android:layout_marginTop="30dp"
+        android:layout_centerInParent="true"/>
+    <Button
+        android:id="@+id/stopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Stop Service" />
+    <Button
+        android:id="@+id/page_Chatrooms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Chat Rooms" />
+    <Button
+        android:id="@+id/page_Gmap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Google Map" />
+
+
+
+</LinearLayout>

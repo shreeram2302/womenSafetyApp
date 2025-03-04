@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".SignInActivity"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/signin_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign In"
+        android:textSize="24sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"/>
+
+    <EditText
+        android:id="@+id/signin_email"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:layout_below="@id/signin_title"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/signin_password"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:layout_below="@id/signin_email"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/signin_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign In"
+        android:layout_below="@id/signin_password"/>
+
+    <TextView
+        android:id="@+id/signup_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Don't have an account? Sign Up"
+        android:layout_below="@id/signin_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:textColor="@android:color/holo_blue_dark"/>
+
+</RelativeLayout>
