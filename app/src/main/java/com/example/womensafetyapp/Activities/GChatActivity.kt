@@ -1,37 +1,39 @@
 package com.example.womensafetyapp.Activities
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.womensafetyapp.Adapters.GChatAdapter
 import com.example.womensafetyapp.R
 import com.example.womensafetyapp.models.mesg
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 
-import android.location.Location
 import android.widget.TextView
+import android.widget.Toast
+import com.example.womensafetyapp.models.Notification
+import com.example.womensafetyapp.models.NotificationData
+import com.example.womensafetyapp.utils.AccessToken
+import com.example.womensafetyapp.utils.FCM_send_notification
+import com.example.womensafetyapp.utils.NotificationApi
 
-import com.google.android.gms.location.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 
 import java.util.*
 
@@ -40,9 +42,10 @@ class GChatActivity : AppCompatActivity() {
     private lateinit var adapter: GChatAdapter
     private lateinit var etMessage: EditText
     private lateinit var tv_name: TextView
+    private lateinit var backBtn: ImageView
 
-    private lateinit var btnSend: Button
-    private lateinit var btnLoc: Button
+    private lateinit var btnSend: ImageView
+    private lateinit var btnLoc: TextView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val messageList = ArrayList<mesg>()
@@ -60,8 +63,11 @@ class GChatActivity : AppCompatActivity() {
         chatId = intent.getStringExtra("chatId")
         chatName = intent.getStringExtra("chatName")
 
-
-
+        window.statusBarColor = Color.parseColor("#002F6C")
+        backBtn = findViewById(R.id.btn_back)
+        backBtn.setOnClickListener {
+            finish()  // Finishes current activity and moves to the previous one
+        }
 
         recyclerView = findViewById(R.id.recyclerMessages)
         etMessage = findViewById(R.id.etMessage)
@@ -90,6 +96,10 @@ class GChatActivity : AppCompatActivity() {
         if (chatId != null) {
             fetchMessages()
         }
+
+        val policy=StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+
     }
 
 
@@ -129,33 +139,33 @@ class GChatActivity : AppCompatActivity() {
 
 
     fun sendChatMessage(chatRef: DocumentReference, message: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            // Fetch username from Firestore
-            FirebaseFirestore.getInstance().collection("users").document(userId).get()
-                .addOnSuccessListener { document ->
-                    val senderName = document.getString("username") ?: "Unknown"  // Get sender's username
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-                    val messageData = hashMapOf(
-                        "chatId" to chatRef.id,
-                        "senderId" to userId,
-                        "senderName" to senderName,  // 🔥 Add username to message
-                        "text" to message,
-                        "timestamp" to System.currentTimeMillis()
-                    )
+        // 🔹 Fetch sender's username
+        FirebaseFirestore.getInstance().collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val senderName = document.getString("username") ?: "Unknown"
 
-                    chatRef.collection("messages").add(messageData)
-                        .addOnSuccessListener {
-                            Log.d("Firestore", "Message sent successfully with sender name")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("FirestoreError", "Message sending failed: ${e.message}")
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("FirestoreError", "Failed to fetch sender name: ${e.message}")
-                }
-        }
+                val messageData = hashMapOf(
+                    "chatId" to chatRef.id,
+                    "senderId" to userId,
+                    "senderName" to senderName,
+                    "text" to message,
+                    "timestamp" to System.currentTimeMillis()
+                )
+
+                chatRef.collection("messages").add(messageData)
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "Message sent successfully")
+
+
+                        // 🔥 Fetch participants & send notifications
+
+                        var notif_instance= FCM_send_notification()
+//                        notif_instance.initParticipants(chatRef,senderName,message)
+
+                    }
+            }
     }
 
 
@@ -180,23 +190,5 @@ class GChatActivity : AppCompatActivity() {
 
 
 
-
-
-
 }
-//    fun sendChatMessage(chatRef: DocumentReference, message: String) {
-//        val messageData = hashMapOf(
-//            "chatId" to chatRef.id,  // ✅ Associate message with chat room
-//            "senderId" to FirebaseAuth.getInstance().currentUser?.uid,
-//            "text" to message,
-//            "timestamp" to System.currentTimeMillis()
-//        )
-//
-//        chatRef.collection("messages").add(messageData)
-//            .addOnSuccessListener {
-//                Log.d("Firestore", "Message sent successfully")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.e("FirestoreError", "Message sending failed: ${e.message}")
-//            }
-//    }
+

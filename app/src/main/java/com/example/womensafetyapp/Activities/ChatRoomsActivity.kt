@@ -2,9 +2,11 @@ package com.example.womensafetyapp.Activities
 
 import android.app.AlertDialog
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +17,7 @@ import com.example.womensafetyapp.Adapters.ChatRoomAdapter
 import com.example.womensafetyapp.utils.SharedPreferencesHelper.getFromSharedPrefs
 import com.example.womensafetyapp.utils.SharedPreferencesHelper.saveEmergencyChatroomIdSharedPrefs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -26,15 +29,21 @@ class ChatRoomsActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     private var userId=currentUserId.toString()
+    private lateinit var backBtn: ImageView
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_rooms)
 
+        window.statusBarColor = Color.parseColor("#002F6C")
 
 
-
+        backBtn = findViewById(R.id.btn_back)
+        backBtn.setOnClickListener {
+            finish()  // Finishes current activity and moves to the previous one
+        }
 
 
         recyclerView = findViewById(R.id.recyclerChatRooms)
@@ -102,12 +111,12 @@ class ChatRoomsActivity : AppCompatActivity() {
         val dialog = builder.create()
         dialog.show()
 
-        val etChatId = dialogView.findViewById<EditText>(R.id.etChatId)
+//        val etChatId = dialogView.findViewById<EditText>(R.id.etChatId)
         val etChatName = dialogView.findViewById<EditText>(R.id.etChatName)
         val btnCreate = dialogView.findViewById<Button>(R.id.btnConfirmCreate)
 
         btnCreate.setOnClickListener {
-            val chatId = etChatId.text.toString().trim()
+//            val chatId = etChatId.text.toString().trim()
             val chatName = etChatName.text.toString().trim()
 
 //            if (chatId.isEmpty() || chatName.isEmpty()) {
@@ -115,12 +124,21 @@ class ChatRoomsActivity : AppCompatActivity() {
 //                return@setOnClickListener
 //            }
 
-            createChatRoom(chatId, chatName)
+            createChatRoom(chatName)
             dialog.dismiss()
+            val rootView = findViewById<View>(android.R.id.content)
+
+            val snackbar = Snackbar.make(rootView, "Group Created", Snackbar.LENGTH_LONG)
+            snackbar.setBackgroundTint(resources.getColor(R.color.primaryColor))
+            snackbar.setTextColor(resources.getColor(R.color.white))
+            snackbar.setActionTextColor(resources.getColor(R.color.red))
+            snackbar.setAction("OK") { /* Action here */ }
+            snackbar.show()
+
         }
     }
 
-    private fun createChatRoom(chatId: String, chatName: String) {
+    private fun createChatRoom(chatName: String) {
         val chatRef = db.collection("chats").document(userId)
 
 
@@ -177,6 +195,15 @@ class ChatRoomsActivity : AppCompatActivity() {
 
             joinChatRoom(chatId)
             dialog.dismiss()
+            val rootView = findViewById<View>(android.R.id.content)
+
+            val snackbar = Snackbar.make(rootView, "Group Joined", Snackbar.LENGTH_LONG)
+            snackbar.setBackgroundTint(resources.getColor(R.color.primaryColor))
+            snackbar.setTextColor(resources.getColor(R.color.white))
+            snackbar.setActionTextColor(resources.getColor(R.color.red))
+            snackbar.setAction("OK") { /* Action here */ }
+            snackbar.show()
+
         }
     }
 

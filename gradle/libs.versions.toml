@@ -13,6 +13,8 @@ playServicesLocation = "21.3.0"
 lifecycleService = "2.8.7"
 firebaseFirestoreKtx = "25.1.2"
 firebaseAuth = "23.2.0"
+volley = "1.2.1"
+gridlayout = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,6 +29,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleService" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
+androidx-gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "gridlayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

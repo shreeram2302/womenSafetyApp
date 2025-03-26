@@ -3,6 +3,7 @@ package com.example.womensafetyapp.Adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.womensafetyapp.R
@@ -33,6 +34,6 @@ class EmergencyNumbersAdapter(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameTextView: TextView = view.findViewById(R.id.tvContactName)
         val phoneTextView: TextView = view.findViewById(R.id.tvContactPhone)
-        val deleteButton: View = view.findViewById(R.id.btnDelete)
+        val deleteButton: Button = view.findViewById(R.id.btnDelete)
     }
 }

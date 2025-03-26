@@ -1,6 +1,7 @@
 package com.example.womensafetyapp
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -30,6 +31,7 @@ class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
+        window.statusBarColor = Color.parseColor("#F5F5F5")
 
 
         firebaseAuth = FirebaseAuth.getInstance()

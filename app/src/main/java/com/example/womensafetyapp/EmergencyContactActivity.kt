@@ -3,8 +3,10 @@ package com.example.womensafetyapp
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +22,8 @@ class EmergencyContactActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAddContact: FloatingActionButton
     private val emergencyContacts = mutableListOf<Pair<String, String>>()  // Store contacts as (name, phone)
+    private lateinit var backBtn: ImageView
+
 
     private val contactPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
@@ -32,6 +36,12 @@ class EmergencyContactActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_emergency_contact)
+        window.statusBarColor = Color.parseColor("#002F6C")
+        backBtn = findViewById(R.id.btn_back)
+        backBtn.setOnClickListener {
+            finish()  // Finishes current activity and moves to the previous one
+        }
+
 
         // Initialize views
         recyclerView = findViewById(R.id.rvEmergencyContacts)

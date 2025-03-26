@@ -2,4 +2,27 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primaryColor">#1E3A8A</color> <!-- Dark Blue -->
+    <color name="primaryDarkColor">#162D6A</color> <!-- Darker Blue -->
+    <color name="accentColor">#FF3B30</color> <!-- Red -->
+
+    <!-- Background Colors -->
+    <color name="backgroundColor">#F5F5F5</color> <!-- Light Gray -->
+    <color name="cardBackgroundColor">#FFFFFF</color> <!-- White -->
+
+    <!-- Text Colors -->
+    <color name="textPrimary">#000000</color>
+    <color name="textSecondary">#666666</color>
+    <color name="errorColor">#D32F2F</color>
+
+    <!-- Button Colors -->
+    <color name="buttonColor">#1E3A8A</color>
+    <color name="buttonTextColor">#FFFFFF</color>
+
+    <!-- Border & Shadow Colors -->
+    <color name="borderColor">#FFFFFFFF</color>
+    <color name="primaryBlue">#002F6C</color>
+    <color name="red">#E53935</color>
+    <color name="cardBackground">#F8F8F8</color>
+
 </resources>

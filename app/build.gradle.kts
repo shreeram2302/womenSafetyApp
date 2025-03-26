@@ -38,6 +38,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    packagingOptions{
+        exclude("META-INF/DEPENDENCIES")
+    }
 }
 
 dependencies {
@@ -50,6 +53,8 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.volley)
+    implementation(libs.androidx.gridlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,7 +77,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-basement:18.2.0")
 
     implementation ("com.google.firebase:firebase-messaging:23.3.1")
-//    implementation ("com.google.firebase:firebase-firestore:24.7.1")
+
 
     //location
     implementation ("com.google.android.gms:play-services-location:21.0.1")
@@ -85,6 +90,17 @@ dependencies {
 
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("com.airbnb.android:lottie:5.0.3")
+
+    implementation ("com.google.firebase:firebase-messaging-ktx:23.3.1")
+    implementation ("com.google.firebase:firebase-database-ktx:20.3.0")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.karumi:dexter:6.2.3")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
+
+    implementation ("com.google.android.material:material:1.9.0")
+    implementation ("com.makeramen:roundedimageview:2.3.0")
 
 
 }

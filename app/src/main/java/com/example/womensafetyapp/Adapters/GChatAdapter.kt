@@ -6,10 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.example.womensafetyapp.R
 import com.example.womensafetyapp.models.mesg
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +25,8 @@ class GChatAdapter(private val messages: ArrayList<mesg>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-//    private var mediaPlayer: MediaPlayer? = null
+
+    //    private var mediaPlayer: MediaPlayer? = null
     private var isPlaying = false
 
     companion object {
@@ -65,59 +72,67 @@ class GChatAdapter(private val messages: ArrayList<mesg>) :
         private val tvMessage: TextView = view.findViewById(R.id.messageTextView)
         private val imgMessage: ImageView = view.findViewById(R.id.imageMessageView)
         private val btnAudio: LottieAnimationView = view.findViewById(R.id.audioMessageButton)
+        private val img_bg: CardView = view.findViewById(R.id.img_bg)
+
 
         fun bind(message: mesg) {
-
-           if (message.type=="text"){
-               tvMessage.text=message.text
-           }else{
-            tvMessage.visibility = View.GONE
-           }
-
+            tvMessage.visibility = View.VISIBLE // Reset visibility before checking type
             imgMessage.visibility = View.GONE
             btnAudio.visibility = View.GONE
+            img_bg.visibility = View.GONE
 
-            if (!message.fileUrl.isNullOrEmpty()){
-                if (message.type=="image"){
+            if (message.type == "text") {
+                tvMessage.text = message.text
+            } else {
+                tvMessage.visibility = View.GONE
+            }
+
+            if (!message.fileUrl.isNullOrEmpty()) {
+                if (message.type == "image") {
+                    img_bg.visibility = View.VISIBLE
                     imgMessage.visibility = View.VISIBLE
-                    Glide.with(itemView.context).load(message.fileUrl).into(imgMessage)
-                }else{
+                    Glide.with(itemView.context)
+                        .load(message.fileUrl)
+                        .apply(RequestOptions().transform(CenterCrop(), RoundedCorners(20))) // CenterCrop ensures correct rounding
+                        .into(imgMessage)
+                } else { // It's an audio message
                     btnAudio.visibility = View.VISIBLE
-                    mediaPlayer = MediaPlayer()
-                    mediaPlayer?.setDataSource(message.fileUrl)  // Change path accordingly
-                    mediaPlayer?.prepareAsync()
+
+                    mediaPlayer = MediaPlayer().apply {
+                        setDataSource(message.fileUrl)
+                        prepareAsync()
+                    }
+
                     btnAudio.setOnClickListener {
-//                    mediaPlayer?.release()
-//                    mediaPlayer = MediaPlayer().apply {
-//                        setDataSource(message.fileUrl)
-//                        prepare()
-//                        start()
-//                    }
                         if (!isPlaying) {
-                            // Play Audio
-//                            mediaPlayer?.prepare()
                             mediaPlayer?.start()
-                            btnAudio.playAnimation() // Play animation
+
+                            // Start looping animation
+                            btnAudio.repeatCount = LottieDrawable.INFINITE
+                            btnAudio.playAnimation()
+
                             isPlaying = true
                         } else {
-                            // Pause Audio
                             mediaPlayer?.pause()
-                            btnAudio.reverseAnimationSpeed()
-                            btnAudio.playAnimation() // Reverse animation to pause
+
+                            // Stop animation when button is clicked again
+                            btnAudio.cancelAnimation()
+                            btnAudio.progress = 0f // Reset to start frame
+
                             isPlaying = false
                         }
 
+                        // Stop animation when audio completes
                         mediaPlayer?.setOnCompletionListener {
-                            btnAudio.reverseAnimationSpeed()
-                            btnAudio.playAnimation()
+                            btnAudio.cancelAnimation()
+                            btnAudio.progress = 0f // Reset animation
                             isPlaying = false
                         }
-
                     }
                 }
-
             }
         }
+
     }
 
     inner class ReceivedMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -125,56 +140,70 @@ class GChatAdapter(private val messages: ArrayList<mesg>) :
         private val tvSender: TextView = view.findViewById(R.id.tv_sender)
         private val imgMessage: ImageView = view.findViewById(R.id.imageMessageView)
         private val btnAudio: LottieAnimationView = view.findViewById(R.id.audioMessageButton)
+        private val img_bg: CardView = view.findViewById(R.id.img_bg)
+
         private var mediaPlayer: MediaPlayer? = null
 
         fun bind(message: mesg) {
-            tvMessage.text = message.text
-            tvSender.text = message.senderName
+            tvSender.text=message.senderName
+            tvMessage.visibility = View.VISIBLE // Reset visibility before checking type
             imgMessage.visibility = View.GONE
             btnAudio.visibility = View.GONE
+            img_bg.visibility = View.GONE
 
-            if (!message.fileUrl.isNullOrEmpty()){
-                if (message.type=="image"){
-                    tvMessage.visibility = View.GONE
+            if (message.type == "text") {
+                tvMessage.text = message.text
+
+            } else {
+                tvMessage.visibility = View.GONE
+            }
+
+            if (!message.fileUrl.isNullOrEmpty()) {
+                if (message.type == "image") {
+                    img_bg.visibility = View.VISIBLE
                     imgMessage.visibility = View.VISIBLE
-                    Glide.with(itemView.context).load(message.fileUrl).into(imgMessage)
-                }else{
-//                    tvMessage.visibility = View.GONE
+                    Glide.with(itemView.context)
+                        .load(message.fileUrl)
+                        .apply(RequestOptions().transform(CenterCrop(), RoundedCorners(20))) // CenterCrop ensures correct rounding
+                        .into(imgMessage)
+                } else { // It's an audio message
                     btnAudio.visibility = View.VISIBLE
-                    mediaPlayer = MediaPlayer()
-                    mediaPlayer?.setDataSource(message.fileUrl)  // Change path accordingly
-                    mediaPlayer?.prepareAsync()
+                    mediaPlayer = MediaPlayer().apply {
+                        setDataSource(message.fileUrl)
+                        prepareAsync()
+                    }
+
                     btnAudio.setOnClickListener {
-//                    mediaPlayer?.release()
-//                    mediaPlayer = MediaPlayer().apply {
-//                        setDataSource(message.fileUrl)
-//                        prepare()
-//                        start()
-//                    }
                         if (!isPlaying) {
-                            // Play Audio
-//                            mediaPlayer?.prepare()
                             mediaPlayer?.start()
-                            btnAudio.playAnimation() // Play animation
+
+                            // Start looping animation
+                            btnAudio.repeatCount = LottieDrawable.INFINITE
+                            btnAudio.playAnimation()
+
                             isPlaying = true
                         } else {
-                            // Pause Audio
                             mediaPlayer?.pause()
-                            btnAudio.reverseAnimationSpeed()
-                            btnAudio.playAnimation() // Reverse animation to pause
+
+                            // Stop animation when button is clicked again
+                            btnAudio.cancelAnimation()
+                            btnAudio.progress = 0f // Reset to start frame
+
                             isPlaying = false
                         }
 
+                        // Stop animation when audio completes
                         mediaPlayer?.setOnCompletionListener {
-                            btnAudio.reverseAnimationSpeed()
-                            btnAudio.playAnimation()
+                            btnAudio.cancelAnimation()
+                            btnAudio.progress = 0f // Reset animation
                             isPlaying = false
                         }
-
                     }
-                }
 
+                }
             }
         }
+
     }
+
 }

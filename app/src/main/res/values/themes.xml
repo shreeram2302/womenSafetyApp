@@ -1,9 +1,25 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.WomenSafetyApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Dialog Style -->
+    <style name="Base.Theme.MaterialComponents.Light.DialogWhenLarge"
+        parent="Theme.MaterialComponents.Light"/>
+
+    <!-- Base Theme -->
+    <style name="Base.Theme.WomenSafetyApp" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
+        <item name="colorSecondary">@color/accentColor</item>
+
+        <item name="android:colorBackground">@color/backgroundColor</item>
+        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColorSecondary">@color/textSecondary</item>
+        <item name="android:statusBarColor">@color/backgroundColor</item>
+        <item name="android:windowLightStatusBar">true</item> <!-- Ensures dark icons for light backgrounds -->
+
     </style>
 
-    <style name="Theme.WomenSafetyApp" parent="Base.Theme.WomenSafetyApp" />
+    <!-- App Theme (extending Base Theme) -->
+    <style name="Theme.WomenSafetyApp" parent="Base.Theme.WomenSafetyApp"/>
+
 </resources>

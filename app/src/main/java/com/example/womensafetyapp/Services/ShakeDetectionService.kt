@@ -11,6 +11,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Location
 import android.media.MediaRecorder
 import android.os.IBinder
 import android.os.Build
@@ -25,6 +26,7 @@ import com.example.womensafetyapp.utils.SharedPreferencesHelper
 import android.telephony.SmsManager
 import android.util.Log
 import android.view.Surface
+import android.view.View
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -38,12 +40,14 @@ import com.cloudinary.android.MediaManager
 import com.example.womensafetyapp.MyApplication
 import com.example.womensafetyapp.utils.CloudinaryHelper.uploadAudioToCloudinary
 import com.example.womensafetyapp.utils.CloudinaryHelper.uploadImageToCloudinary
+import com.example.womensafetyapp.utils.FCM_send_notification
 import com.example.womensafetyapp.utils.SharedPreferencesHelper.getFromSharedPrefs
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -63,6 +67,7 @@ class ShakeDetectionService : LifecycleService(),SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var sensor: Sensor
     private var isRecording = false
+//    private lateinit var senderName :String
 
     private var lastShakeTime: Long = 0
     private var shakeCount = 0
@@ -94,6 +99,7 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var cameraProvider: ProcessCameraProvider
     private var mediaRecorder: MediaRecorder? = null
     private lateinit var audioFile: File
+    private lateinit var sender: String
     private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate() {
@@ -138,12 +144,6 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
     }
 
 
-
-
-
-
-
-
     private fun createNotification(): Notification {
         val notificationChannelId = "shake_service_channel"
         val channelName = "Shake Detection Service"
@@ -159,9 +159,9 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
         }
 
         return NotificationCompat.Builder(this, notificationChannelId)
-            .setContentTitle("Shake Detection Active")
+            .setContentTitle("Emergency Service Active")
             .setContentText("Your device is being monitored for emergency shakes.")
-            .setSmallIcon(R.drawable.baseline_services_24)
+            .setSmallIcon(R.drawable.applogo)
             .build()
     }
 
@@ -204,30 +204,54 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
         }
     }
     private fun sendEmergencyMessage() {
-        val message = "Emergency! Need help. My location: https://maps.google.com/?q=latitude,longitude"
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val contacts = SharedPreferencesHelper.loadEmergencyContacts(this)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
 
-        if (contacts.isNotEmpty()) {
-            val smsManager = SmsManager.getDefault()
+        // Fetch Last Known Location
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                val latitude = location.latitude
+                val longitude = location.longitude
+                val message = "Emergency! Need help. My location: https://maps.google.com/?q=$latitude,$longitude"
 
-            contacts.forEach { contact ->
-                val phoneNumber = contact.second
-                try {
-                    smsManager.sendTextMessage(phoneNumber, null, message, null, null)
-//                    Toast.makeText(this, "Message Sent Successfully!", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Toast.makeText(this, "Failed to send!", Toast.LENGTH_SHORT).show()
+                val contacts = SharedPreferencesHelper.loadEmergencyContacts(this)
 
-                    e.printStackTrace()
+                if (contacts.isNotEmpty()) {
+                    val smsManager = SmsManager.getDefault()
+
+                    contacts.forEach { contact ->
+                        val phoneNumber = contact.second
+                        try {
+                            smsManager.sendTextMessage(phoneNumber, null, message, null, null)
+//                            Toast.makeText(this, "Emergency message sent!", Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+//                            Toast.makeText(this, "Failed to send message!", Toast.LENGTH_SHORT).show()
+                            e.printStackTrace()
+                        }
+                    }
                 }
-            }
-            val emergencyServiceIntent = Intent(this, EmergencyService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                startForegroundService(emergencyServiceIntent)
             } else {
-//                startService(emergencyServiceIntent)
+                Toast.makeText(this, "Failed to get location!", Toast.LENGTH_SHORT).show()
             }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Error fetching location!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -289,7 +313,7 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
                                 onSuccess = { url -> Log.d("Cloudinary", "Image uploaded: $url")
 
 
-                                    sendToFirebase(chatRef,"Please save me ",url,"image")
+                                    sendToFirebase(chatRef,url,"image")
                                 },
                                 onError = { error -> Log.e("Cloudinary", "Upload failed: $error") }
                             )
@@ -327,7 +351,7 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
                             uploadImageToCloudinary(backPhotoFile,
                                 onSuccess = { url -> Log.d("Cloudinary", "Image uploaded: $url")
 
-                                    sendToFirebase(chatRef,"Please save me ",url,"image")
+                                    sendToFirebase(chatRef,url,"image")
                                             },
                                 onError = { error -> Log.e("Cloudinary", "Upload failed: $error") }
                             )
@@ -442,8 +466,8 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
             uploadAudioToCloudinary(audioFile,
                 onSuccess = {url -> Log.d("Cloudinary","Upload successful $url")
 
-                    sendToFirebase(chatRef,"Please save me ",url,"audio")
-                    sendEmergencyMsg(chatRef,"Please save me i'm in Danger ")
+                    sendToFirebase(chatRef,url,"audio")
+
                     Toast.makeText(this,"uploaded to firebase",Toast.LENGTH_SHORT)
                             },
                 onError = { err -> Log.e("Cloudinary","Upload Failed  :$err")})
@@ -455,7 +479,39 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
             isRecording = false // Reset flag after recording stops
         }
     }, 10000)
+
+        sendEmergencyMsg(chatRef,"Please save me i'm in Danger ")
+        var notif_instance= FCM_send_notification()
+
+        val sharedPreferences = getSharedPreferences("Username", Context.MODE_PRIVATE)
+        sender= sharedPreferences.getString("UsernameKey", "1").toString()
+//        fetchUserData { username ->
+//            sender=username // 🔹 Set the username after data is fetched
+//            Toast.makeText(this, "User name is ${sender}", Toast.LENGTH_SHORT).show()
+//        }
+
+
+//        Toast.makeText(this, "User name is ${sender}", Toast.LENGTH_SHORT).show()
+
+
+        notif_instance.initParticipants(chatRef,sender,"Please save me i'm in Danger ")
+
 }
+//    private fun fetchUserData(callback: (String) -> Unit) {
+//        db.collection("users").document(userId!!).get()
+//            .addOnSuccessListener { document ->
+//                if (document.exists()) {
+//                    val username = document.getString("username") ?: "N/A"
+//                    callback(username) // 🔹 Pass username to the callback
+//                } else {
+//                    callback("N/A") // 🔹 If document doesn't exist, return "N/A"
+//                }
+//            }
+//            .addOnFailureListener {
+//                callback("Error fetching username") // 🔹 Handle errors properly
+//            }
+//    }
+
 
     private fun getCurrentTimestamp(): String {
         val formatter = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
@@ -500,8 +556,9 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
                 }
         }
 
+
     }
-    fun sendToFirebase(chatRef: DocumentReference, message: String, fileUrl: String? = null, messageType: String = "text") {
+    fun sendToFirebase(chatRef: DocumentReference, fileUrl: String? = null, messageType: String = "text") {
 
         if (userId != null) {
             FirebaseFirestore.getInstance().collection("users").document(userId).get()
@@ -512,7 +569,6 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
                         "chatId" to chatRef.id,
                         "senderId" to userId,
                         "senderName" to senderName,
-                        "text" to "", // Store text only for text messages
                         "fileUrl" to fileUrl, // Store file URL if available
                         "type" to messageType, // Message type (text, image, audio)
                         "timestamp" to System.currentTimeMillis()

@@ -1,4 +1,7 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="20dp"
 
@@ -6,14 +9,24 @@
     android:layout_height="wrap_content">
     <Button
         android:id="@+id/btnCreateChat"
-        android:text="Create Emergency Chat"
+        android:text="Create Emergency Group"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
+
+        android:gravity="center_horizontal"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:background="@drawable/button_bg"
         android:layout_width="match_parent"/>
     <Button
         android:id="@+id/btnJoinChat"
         android:layout_height="wrap_content"
+        android:background="@drawable/button_bg"
+        android:textAlignment="center"
+        android:gravity="center_horizontal"
+        android:textColor="@color/white"
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
-        android:text="Join Emergency Chat Chat" />
+        android:text="Join Group" />
 </LinearLayout>
+<!--</androidx.cardview.widget.CardView>-->
+<!--</LinearLayout>-->

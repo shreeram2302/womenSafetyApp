@@ -5,32 +5,56 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="10dp"
-    android:background="@android:color/white">
+    tools:context=".Activities.GChatActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:background="@drawable/card_bg_home"
+        android:paddingVertical="20dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginVertical="5dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="25dp"
+            android:src="@drawable/previous1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white">
+        </ImageView>
 
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="group name "
+            android:layout_marginStart="8dp"
+            android:text="Group name "
+            android:textColor="@color/white"
             android:textSize="24dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnLoc"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btn_back"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
+        <TextView
             android:id="@+id/btnLoc"
+            android:textSize="16dp"
+
+            android:paddingVertical="5dp"
+            android:paddingHorizontal="10dp"
+            android:textColor="@color/white"
             android:layout_width="wrap_content"
+            android:drawableLeft="@drawable/pin2"
+            android:drawableTint="@color/white"
             android:layout_height="wrap_content"
-            android:text="Loaction"
+            android:text="Location"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -42,7 +66,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="50dp"
+        android:paddingHorizontal="10dp"
+        android:layout_marginTop="20dp"
         android:scrollbars="vertical"/>
 
     <!-- Message Input Section -->
@@ -50,6 +75,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginBottom="30dp"
         android:padding="8dp">
 
         <EditText
@@ -57,14 +83,24 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingLeft="4dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/edittext_bg"
             android:hint="Type a message"
+            android:textColor="@color/textSecondary"
             android:minHeight="48dp" />
 
-        <Button
+        <ImageView
+            android:background="@drawable/button_bg"
             android:id="@+id/btnSend"
+            android:src="@drawable/send1"
+            android:paddingHorizontal="25dp"
+            android:paddingVertical="10dp"
+
+            android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send"/>
+            app:tint="@color/white" />
 
     </LinearLayout>
 

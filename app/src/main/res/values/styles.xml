@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Button Style -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#6200EE</item>
+        <item name="colorAccent">#03DAC5</item>
+    </style>
+
+    <!-- Inner Style -->
+    <style name="InnerStyle">
+        <item name="colorPrimary">#FF5722</item>
+    </style>
+
+</resources>

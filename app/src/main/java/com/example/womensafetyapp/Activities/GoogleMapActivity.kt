@@ -1,6 +1,8 @@
 package com.example.womensafetyapp.Activities
 
+import android.graphics.Color
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -22,11 +24,20 @@ class GoogleMapActivity : AppCompatActivity(), OnMapReadyCallback {
     private var userMarker: Marker? = null
     private var chatId: String? = null  // Replace with actual chatroom ID
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
+    private lateinit var backBtn: ImageView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_google_map)
+
+        window.statusBarColor = Color.parseColor("#002F6C")
+        backBtn = findViewById(R.id.btn_back)
+        backBtn.setOnClickListener {
+            finish()  // Finishes current activity and moves to the previous one
+        }
+
+
 
         chatId = intent.getStringExtra("location")
         val mapFragment = supportFragmentManager

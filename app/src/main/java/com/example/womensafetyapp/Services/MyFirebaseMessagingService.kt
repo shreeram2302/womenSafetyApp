@@ -1,4 +1,4 @@
-package com.example.womensafetyapp.Services
+package com.example.womensafetyapp.services
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -7,69 +7,120 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
+import android.media.Ringtone
+import android.media.RingtoneManager
+import android.os.*
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.IconCompat
+import com.example.womensafetyapp.Activities.ChatRoomsActivity
+import com.example.womensafetyapp.Activities.GChatActivity
 import com.example.womensafetyapp.MainActivity
 import com.example.womensafetyapp.R
+import com.example.womensafetyapp.models.ChatRoom
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import java.util.*
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
+    private val channelID = "class-update"
+    private val channelName = "class-updates"
 
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        remoteMessage.notification?.let {
-            showNotification(it.title ?: "New Message", it.body ?: "You have received a new message")
-        }
+    private val notificationManager: NotificationManager by lazy {
+        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
-    private fun showNotification(title: String, message: String) {
-        val channelId = "chat_messages_channel"
-        val notificationId = System.currentTimeMillis().toInt()
+    override fun onMessageReceived(message: RemoteMessage) {
+        super.onMessageReceived(message)
 
-        // Create intent to open app when clicked
-        val intent = Intent(this, MainActivity::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel()
+        }
+
+        // 🔹 Create an Intent to open an Activity when notification is clicked
+        val intent = Intent(this, ChatRoomsActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+
+
+        // 🔹 Create a PendingIntent
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Ensure it works on Android 12+
         )
 
-        // Create notification channel (For Android 8+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId, "Chat Messages", NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notifications for chat messages"
-            }
-            val manager = getSystemService(NotificationManager::class.java)
-            manager?.createNotificationChannel(channel)
-        }
-
-        // Build notification
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.baseline_services_24)
-            .setContentTitle(title)
-            .setContentText(message)
+        val builder = NotificationCompat.Builder(applicationContext, channelID)
+            .setSmallIcon(IconCompat.createWithResource(applicationContext, R.drawable.applogo))
+            .setColor(applicationContext.getColor(R.color.black))
+            .setContentTitle(message.data["title"])
+            .setContentText(message.data["body"])
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setBadgeIconType(R.drawable.applogo)
             .setAutoCancel(true)
+            .setAutoCancel(true) // Notification disappears when clicked
             .setContentIntent(pendingIntent)
-            .build()
+            .setOngoing(false)
+            .setLights(
+                ContextCompat.getColor(applicationContext, R.color.black),
+                5000,
+                5000
+            )
 
-        // Show notification
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            with(NotificationManagerCompat.from(applicationContext)) {
+                if (ActivityCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+                notify(Random().nextInt(3000), builder.build())
+            }
+        } else {
+            NotificationManagerCompat.from(applicationContext).notify(Random().nextInt(3000), builder.build())
         }
-        NotificationManagerCompat.from(this).notify(notificationId, notification)
+
+        // Play ringtone and vibrate when notification is received
+        playRingtoneAndVibrate()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel(
+            channelID,
+            channelName,
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun playRingtoneAndVibrate() {
+        // Play a ringtone
+        val notificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+        val ringtone: Ringtone = RingtoneManager.getRingtone(applicationContext, notificationUri)
+        ringtone.play()
+
+        // Stop ringtone after 10 seconds
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (ringtone.isPlaying) {
+                ringtone.stop()
+            }
+        }, 10_000)
+
+        // Vibrate the phone
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(1000) // Vibrate for 1 second
+        }
     }
 }
